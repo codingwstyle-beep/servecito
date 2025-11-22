@@ -22,6 +22,13 @@ wss.on('connection', (ws) => {
         ws.clientId = data.clientId || ws.clientId;
         console.log('Client hello from', ws.clientId);
       }
+      if (data && data.type === 'ping') {
+        // reply with server time for simple clock sync
+        try {
+          const resp = JSON.stringify({ type: 'pong', id: data.id || null, t0: data.t0 || null, serverTime: Date.now() });
+          ws.send(resp);
+        } catch (e) { console.warn('Failed to reply pong', e); }
+      }
       if (data && data.type === 'request_play') {
         // Attach clientId if not set
         ws.clientId = ws.clientId || data.clientId;
