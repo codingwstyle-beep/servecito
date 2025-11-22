@@ -29,11 +29,10 @@ wss.on('connection', (ws) => {
         const startAt = Date.now() + 1200; // 1.2s from now to allow clients to sync
         const payload = JSON.stringify({ type: 'play', startAt, origin: data.clientId });
         console.log('Broadcasting play startAt=', startAt, 'origin=', data.clientId);
+        // Send to ALL connected clients, including the origin, so every client gets the same startAt
         wss.clients.forEach((client) => {
           try {
             if (client.readyState !== WebSocket.OPEN) return;
-            // Do not send back to the origin client (it will fallback locally)
-            if (client.clientId && client.clientId === data.clientId) return;
             client.send(payload);
           } catch (e) { console.warn('Failed to send to a client', e); }
         });
